@@ -88,7 +88,7 @@ const AskQuestionCard = () => {
             style={{
                 backgroundColor: 'white', // Set white background
                 color : 'black',
-                overflow: "-moz-hidden-unscrollable", // Disable scrolling
+                overflow: "hidden", // Disable scrolling
               }} />
 
 
@@ -108,9 +108,9 @@ const AskQuestionCard = () => {
         </CardHeader>
         <CardContent>
             <form onSubmit={onSubmit}>
-                <Textarea placeholder='Which file should i edit to change the home page?' value = {question} onChange={e => setQuestion(e.target.value)}/>
-                <div className="h-4">
-                    <Button type = 'submit' disabled = {loading}>
+                <Textarea  className = 'p-4'placeholder='Which file should i edit to change the home page?' value = {question} onChange={e => setQuestion(e.target.value)}/>
+                <div className="h-4 pb-10">
+                    <Button className="mt-4"  type = 'submit' disabled = {loading} >
                         Ask NeuroGit!
                     </Button>
                 </div>     
