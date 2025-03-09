@@ -102,8 +102,8 @@ model Issue{
     headline    String
     summary     String
 
-    meetingId   String 
-    meeting     Meeting   @relation(fields: [meetingId], references: [id])
+    meetingId   String                                                     // on delete was added, u could remove it
+    meeting     Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
 }
 
 
