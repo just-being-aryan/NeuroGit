@@ -59,7 +59,7 @@ const MeetingCard = () => {
     })
 
   return (
-    <Card className='col-span-2 flex flex-col items-center justify-between p-10' {...getRootProps()}>
+    <Card className='col-span-2 flex flex-col items-center justify-between p-10 ' {...getRootProps()}>
             {!isUploading && (
                 <>
                     <Presentation className='h-10 w-10 animate-bounce'/>

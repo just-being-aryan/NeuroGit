@@ -22,12 +22,12 @@ const QAPage = () => {
     <Sheet>
         <AskQuestionCard/>
         <div className="h-4"></div>
-        <h1 className="text-xl font-semibold">Saved Question</h1>
+        <h1 className="text-xl font-semibold pl-4 ">Saved Questions</h1>
         <div className="h-2"></div>
         <div className="flex flex-col gap-2">
           {questions?.map((question,index) => {
             return (
-              <React.Fragment key = {question.id}>
+              <React.Fragment key = {question.id} >
                 <SheetTrigger onClick={ () => {setQuestonIndex(index)}}>
                 <div className='flex items-center gap-4 bg-white rounded-lg p-4 shadow border'>
                     <img className = 'rounded-full' height = {30} width = {30} src={question.user.imageUrl ?? ""} alt="" />
