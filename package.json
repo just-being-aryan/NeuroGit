@@ -72,7 +72,7 @@
     "embla-carousel-react": "^8.5.2",
     "firebase": "^11.4.0",
     "geist": "^1.3.0",
-    "ignore": "^7.0.3",
+    "ignore": "^5.2.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.475.0",
     "next": "^15.0.1",
