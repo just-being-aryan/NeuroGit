@@ -119,7 +119,11 @@ export const projectRouter = createTRPCRouter({
     return await ctx.db.userToProject.findMany({where: {projectId: input.projectId}, include: {user: true}})
    }),
    
+   //FOR BILLING
    
+   getMyCredits: protectedProcedure.query(async ( {ctx} ) => {
+    return await ctx.db.user.findUnique({where: {id: ctx.user.userId!}, select: {credits:true}})
+   })
 
     
 })
