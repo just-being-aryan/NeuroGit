@@ -32,7 +32,7 @@ const BillingPage = () => {
         <Button onClick={() => {
           createCheckoutSession(creditsToBuyAmount)
         }}>
-          Buy {creditsToBuy} credits for ${price}
+          Buy {creditsToBuyAmount} credits for ${price}
         </Button>
     </div>
   )
