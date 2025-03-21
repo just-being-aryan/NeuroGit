@@ -1,5 +1,5 @@
 
-Live Link - https://neuro-git-phi.vercel.app/dashboard
+Live Link - https://neuro-git-phi.vercel.app
 
 
 <<<<<<< HEAD
