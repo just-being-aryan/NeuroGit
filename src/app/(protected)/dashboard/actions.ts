@@ -5,6 +5,7 @@ import {createGoogleGenerativeAI} from '@ai-sdk/google'
 import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
 import { auth } from '@clerk/nextjs/server'
+import { truncateText } from '@/lib/utils'
 
 const QUESTION_CREDIT_COST = 1
 
@@ -43,7 +44,7 @@ export async function askQuestion(question : string, projectId:string)
 
     for (const doc of result)
     {
-        context += `source: ${doc.fileName}\ncode content: ${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`
+        context += `source: ${doc.fileName}\ncode content: ${truncateText(doc.sourceCode, 1500)}\n summary of file: ${truncateText(doc.summary, 500)}\n\n`
     }
 
     (async() => {

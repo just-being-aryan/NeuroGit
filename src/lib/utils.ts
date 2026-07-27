@@ -14,3 +14,10 @@ export function confidenceColor(score: number): string {
 export function confidencePercent(score: number): number {
   return Math.round(score * 100)
 }
+
+// Some commit messages (e.g. auto-generated Dependabot PR bodies) can be thousands of
+// characters of raw HTML/markdown - cap anything going into an LLM prompt or a citation display.
+export function truncateText(text: string, maxLength = 500): string {
+  if (!text) return text
+  return text.length > maxLength ? text.slice(0, maxLength) + '…' : text
+}

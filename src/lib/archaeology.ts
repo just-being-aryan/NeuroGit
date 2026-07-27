@@ -6,6 +6,7 @@ import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
 import { Prisma } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
+import { truncateText } from '@/lib/utils'
 
 const QUESTION_CREDIT_COST = 1
 
@@ -74,23 +75,23 @@ export async function askWhy(
 
     let context = 'CODE:\n'
     for (const doc of codeMatches) {
-        context += `[file ${doc.fileName}]\ncode content: ${doc.sourceCode}\nsummary: ${doc.summary}\n\n`
+        context += `[file ${doc.fileName}]\ncode content: ${truncateText(doc.sourceCode, 1500)}\nsummary: ${truncateText(doc.summary, 500)}\n\n`
     }
 
     context += 'COMMITS:\n'
     for (const commit of commitMatches) {
-        context += `[commit ${commit.commitHash.slice(0, 7)}] by ${commit.commitAuthorName} on ${commit.commitDate}\nmessage: ${commit.commitMessage}\nsummary: ${commit.summary}\n\n`
+        context += `[commit ${commit.commitHash.slice(0, 7)}] by ${commit.commitAuthorName} on ${commit.commitDate}\nmessage: ${truncateText(commit.commitMessage, 300)}\nsummary: ${truncateText(commit.summary, 500)}\n\n`
     }
 
     context += 'MEETING DISCUSSIONS:\n'
     for (const issue of issueMatches) {
-        context += `[meeting "${issue.meetingName}" at ${issue.start}]\nheadline: ${issue.headline}\nsummary: ${issue.summary}\n\n`
+        context += `[meeting "${issue.meetingName}" at ${issue.start}]\nheadline: ${truncateText(issue.headline, 200)}\nsummary: ${truncateText(issue.summary, 500)}\n\n`
     }
 
     const citations: WhyCitation[] = [
         ...codeMatches.map((d): WhyCitation => ({ type: 'file', fileName: d.fileName })),
-        ...commitMatches.map((c): WhyCitation => ({ type: 'commit', commitHash: c.commitHash, commitMessage: c.commitMessage })),
-        ...issueMatches.map((i): WhyCitation => ({ type: 'issue', meetingName: i.meetingName, headline: i.headline, start: i.start, end: i.end })),
+        ...commitMatches.map((c): WhyCitation => ({ type: 'commit', commitHash: c.commitHash, commitMessage: truncateText(c.commitMessage, 300) })),
+        ...issueMatches.map((i): WhyCitation => ({ type: 'issue', meetingName: i.meetingName, headline: truncateText(i.headline, 200), start: i.start, end: i.end })),
     ]
 
     ;(async () => {
