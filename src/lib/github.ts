@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
 import {Octokit} from "octokit";
-import { aiSummariseCommit } from "./gemini";
+import { aiSummariseCommit, generateEmbedding } from "./gemini";
+import { linkCommitToIssues } from "./linking";
 import axios from 'axios'
 
 
@@ -42,12 +43,20 @@ export const getCommitHashes = async(githubUrl:string) : Promise<Response[]> => 
     }))
 }
 
+const POLL_COOLDOWN_MS = 60 * 1000
+
 // getCommitHashes(githubUrl)
-export const pollCommits = async(projectId : string) => {
-    const {project,githubUrl} = await fetchProjectGithubUrl(projectId)
+export const pollCommits = async(projectId : string, linkAfterInsert: boolean = true) => {
+    const project = await db.project.findUnique({where: {id: projectId}, select: {lastPolledAt: true}})
+    if(project?.lastPolledAt && Date.now() - project.lastPolledAt.getTime() < POLL_COOLDOWN_MS) {
+        return [] // checked recently, skip hitting GitHub again
+    }
+    await db.project.update({where: {id: projectId}, data: {lastPolledAt: new Date()}})
+
+    const {githubUrl} = await fetchProjectGithubUrl(projectId)
     const commitHashes = await getCommitHashes(githubUrl)
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
-    
+
     const summaryResponses = await Promise.allSettled(unprocessedCommits.map(commit => {
         return summariseCommit(githubUrl, commit.commitHash)
 
@@ -60,10 +69,10 @@ export const pollCommits = async(projectId : string) => {
         return ""
     })
 
-    const commits = await db.commit.createMany({
-        data: summaries.map((summary,index) => {
-            console.log(`processing commit ${index}`)
-            return {
+    const createdCommits = await Promise.allSettled(summaries.map(async(summary, index) => {
+        console.log(`processing commit ${index}`)
+        const commit = await db.commit.create({
+            data: {
                 projectId:projectId,
                 commitHash:unprocessedCommits[index]!.commitHash,
                 commitMessage:unprocessedCommits[index]!.commitMessage,
@@ -71,13 +80,28 @@ export const pollCommits = async(projectId : string) => {
                 commitAuthorAvatar:unprocessedCommits[index]!.commitAuthorAvatar,
                 commitDate:unprocessedCommits[index]!.commitDate,
                 summary
-                
             }
         })
-    })
-    
-    return commits
-    
+
+        if(summary) {
+            const embedding = await generateEmbedding(summary)
+            await db.$executeRaw`
+            UPDATE "Commit"
+            SET "summaryEmbedding" = ${`[${embedding.join(',')}]`}::vector
+            WHERE "id" = ${commit.id}
+            `
+
+            if(linkAfterInsert) {
+                await linkCommitToIssues(commit.id, projectId).catch((error) => {
+                    console.error(`Failed to link commit ${commit.id} to issues`, error)
+                })
+            }
+        }
+
+        return commit
+    }))
+
+    return createdCommits
 
 }
 

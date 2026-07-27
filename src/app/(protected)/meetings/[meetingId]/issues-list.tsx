@@ -1,11 +1,9 @@
 'use client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { api, RouterOutputs } from '@/trpc/react'
-import { VideoIcon } from 'lucide-react'
-import { setSourceMapsEnabled } from 'process'
+import { VideoIcon, ChevronDown, GitCommitHorizontal } from 'lucide-react'
 import React, { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Dialog , DialogContent, DialogHeader, DialogTitle, DialogDescription} from '@/components/ui/dialog'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 
 type Props = {
@@ -14,85 +12,79 @@ type Props = {
 
 const IssuesList = ({meetingId}: Props) => {
     const {data: meeting, isLoading} = api.project.getMeetingById.useQuery({meetingId}, {
-        refetchInterval: 4000
+        refetchInterval: (query) => query.state.data?.status === 'PROCESSING' ? 4000 : false
     })
-    if(isLoading || !meeting) return <div>Loading...</div>
+    if(isLoading || !meeting) return <div className="p-8 text-sm text-archaeology-textDim">Loading...</div>
   return (
-    <>
-      <div className='p-8'>
-        <div className='mx-auto flex max-w-2xl items-center justify-between gap-x-8 border-b pb-6 lg:mx-0 lg:max-w-none'>
-            <div className='flex items-center gap-x-8'>
-                <div className='rounded-full border bg-white p-3'>
-                    <VideoIcon className='h-8 w-6'/>
-                </div>
-                <h1>
-                  <div className='text-sm leading-6 text-gray-600'>
-                      Meeting on {""}{meeting.createdAt.toLocaleDateString()}
-                  </div>  
-                  <div className='mt-1 text-base font-semibold leading-6 text-gray-900'>
-                        {meeting.name}
-                  </div>
-                </h1>
+      <div className='p-8 bg-archaeology-bg min-h-full'>
+        <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-2">MEETINGS / MEETING CHAPTERS</div>
+        <div className='flex items-center gap-x-4 border-b border-archaeology-borderSubtle pb-6 mb-6'>
+            <div className='rounded-full border border-archaeology-border bg-archaeology-card p-3'>
+                <VideoIcon className='h-6 w-6 text-archaeology-orange'/>
+            </div>
+            <div>
+              <div className='text-sm text-archaeology-textSecondary'>
+                  Meeting on {""}{meeting.createdAt.toLocaleDateString()}
+              </div>
+              <div className='mt-1 font-display text-xl font-bold text-archaeology-text'>
+                    {meeting.name}
+              </div>
             </div>
         </div>
-        <div className='h-4'></div>
-        <div className='grid grid-cols-1 gap-2 sm:grid-cols-3 '>
+        <div className="font-mono text-xs tracking-widest text-archaeology-textDim mb-3">CHAPTERS — {meeting.issues.length} TOTAL</div>
+        <div className='space-y-2'>
             {meeting.issues.map(issue => (
-              <IssueCard key = {issue.id} issue={issue}/>
+              <IssueRow key = {issue.id} issue={issue}/>
             ))}
         </div>
       </div>
-    </>
   )
 }
 
-function IssueCard({ issue }: { issue: NonNullable<RouterOutputs["project"]["getMeetingById"]>["issues"][number] }) {
-  const [open,setOpen] = React.useState(false)
+function IssueRow({ issue }: { issue: NonNullable<RouterOutputs["project"]["getMeetingById"]>["issues"][number] }) {
+  const [open, setOpen] = useState(false)
   return (
-    <>
-    <Dialog open = {open} onOpenChange={setOpen}>
-        <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {issue.gist}
-              </DialogTitle>
-              <DialogDescription>
-                {issue.createdAt.toLocaleDateString()}
-              </DialogDescription>
-              <p className='text-gray-600'>
-                {issue.headline}
+    <div className="bg-archaeology-card border border-archaeology-border rounded-md overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-4 text-left">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="font-mono text-xs text-archaeology-textDim shrink-0">{issue.start}</span>
+          <span className="text-sm text-archaeology-text font-medium truncate">{issue.headline}</span>
+          {issue.commitLinks.length > 0 && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-archaeology-greenDim text-archaeology-green shrink-0">
+              {issue.commitLinks.length} COMMIT{issue.commitLinks.length > 1 ? 'S' : ''} LINKED
+            </span>
+          )}
+        </div>
+        <ChevronDown className={cn('size-4 text-archaeology-textDim shrink-0 transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div className="px-4 pb-4 border-t border-archaeology-borderSubtle pt-3">
+          <p className="text-sm text-archaeology-textSecondary mb-3">{issue.summary}</p>
+          <blockquote className="border-l-2 border-archaeology-orange bg-archaeology-surface p-3 rounded mb-3">
+              <span className="text-xs font-mono text-archaeology-textDim">
+                  {issue.start} - {issue.end}
+              </span>
+              <p className="italic text-archaeology-text mt-1">
+                  {issue.gist}
               </p>
-              <blockquote className='mt-2 border-l-4 border-gray-300 bg-gray-50 p-4'>
-                  <span className='text-sm text-gray-600'>
-                      {issue.start} . {issue.end}
-                  </span>
-                  <p className='font-medium italic leading-relaxed text-gray-900'>
-                      {issue.summary}
-                  </p>
-              </blockquote>
-
-            </DialogHeader>
-        </DialogContent>
-    </Dialog>
-    <Card className='relative'>
-      <CardHeader>
-        <CardTitle className='text-xl'>
-            {issue.gist}
-        </CardTitle>
-        <div className='border-b'></div>
-        <CardDescription>
-          {issue.headline}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button onClick = {() => setOpen(true)}>
-            Details
-        </Button>
-
-      </CardContent>
-    </Card>
-    </>
-    
+          </blockquote>
+          {issue.commitLinks.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {issue.commitLinks.map(link => (
+                <Link
+                  key={link.id}
+                  href="/commits"
+                  className="flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded bg-archaeology-surface border border-archaeology-border text-archaeology-orange hover:bg-archaeology-cardHover"
+                >
+                  <GitCommitHorizontal className="size-3" />
+                  {link.commit.commitHash.slice(0,7)}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 export default IssuesList

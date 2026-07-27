@@ -1,270 +1,135 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button"; // Assuming you're using shadcn/ui
-import { Card as ShadcnCard, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // shadcn/ui card component
-import Navbar from "./_components/Navbar";
-import { TypewriterEffect, TypewriterEffectSmooth } from "./_components/typewriter-effect"; // Import TypewriterEffect components
-import { TextGenerateEffect } from "./_components/text-generate-effect";
-import { Carousel } from "./_components/carousel";
-import { HeroParallax } from "./_components/hero-parallax";
-import Image from "next/image";
-import { Timeline } from "./_components/timeline";
-import project from "@/images/project.png";
-import question from "@/images/question.png"
-import meeting from "@/images/meeting.png"
-import billing from "@/images/billing.png"
+import { NeuroGitIcon } from "@/components/neurogit-icon";
+import { WhyDemoCard } from "@/components/why-demo-card";
+import { GitCommitHorizontal, Presentation, FileStack, Check, X } from "lucide-react";
 
+const steps = [
+  {
+    n: "01",
+    title: "Connect Repo",
+    body: "Link a GitHub repository. NeuroGit indexes every file, commit, and diff summary via AI.",
+    icon: GitCommitHorizontal,
+  },
+  {
+    n: "02",
+    title: "Upload Meetings",
+    body: "Drop in your team's meeting recordings. NeuroGit transcribes and chapterizes the discussion.",
+    icon: Presentation,
+  },
+  {
+    n: "03",
+    title: "Browse Decision Records",
+    body: "NeuroGit automatically links commits to the discussions that likely motivated them, and generates a Decision Record for each.",
+    icon: FileStack,
+  },
+];
+
+const comparison = [
+  { name: "GitHub Copilot", what: true, why: false, evidence: false },
+  { name: "Cursor", what: true, why: false, evidence: false },
+  { name: "CodeRabbit", what: true, why: false, evidence: false },
+  { name: "NeuroGit", what: true, why: true, evidence: true },
+];
 
 export default function Home() {
-   
-  const data = [
-    {
-      title: "Create your Project!",
-      content: (
-        <div>
-         <p className="text-white-800 dark:text-neutral-200 text-base md:text-lg font-normal mb-8">
-  New Users get 150 credits free!, you can buy credits from the Billing section.
-</p>
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src= {project}
-              alt="startup template"
-              width={800}
-              height={800}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Ask NeuroGit about your repo",
-      content: (
-        <div>
-          <p className="text-white-800 dark:text-neutral-200 text-base md:text-lg font-normal mb-8">
-            
-            NeuroGit can answer any question related to your GitHub Repo!
-          </p>
-          <p className="text-white-800 dark:text-neutral-200 text-base md:text-m font-normal mb-8">
-          You can save questions using "Save Answer" button, and view it later on QnA page
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src={question}
-              alt="hero template"
-              width={800}
-              height={800}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
-            
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Meetings Page",
-      content: (
-        <div>
-          <p className="text-white-800 dark:text-neutral-200 text-base md:text-lg font-normal mb-8">
-            You can add your Meeting Audio, and extract meaningfull insights from it by
-            audio to text conversion using Assembly AI
-          </p>
-          <p className="text-white-800 dark:text-neutral-200 text-base md:text-m font-normal mb-8">
-            Each credit allows you to index 1 file in the repository.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src={meeting}
-              alt="hero template"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
-            
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Buy Credits to continue creating Projects!",
-      content: (
-        <div>
-          <p className="text-white-800 dark:text-neutral-200 text-base md:text-lg font-normal mb-8">
-            
-           You can buy credits on Billing page, for every 100 credits, $2.00 is charged, 
-           you can buy 1000 credits at once 
-          </p>
-         
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src={billing}
-              alt="hero template"
-              width={800}
-              height={800}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
-            />
-            
-          </div>
-        </div>
-      ),
-    },
-  ];
-
-  const typewriterWords = [
-    { text: "Automate", className: "text-white-500" },
-    { text: "GitHub", className: "text-white-500" },
-    { text: "Repositories", className: "text-white-500" },
-    { text: "with", className: "text-white-500" },
-    { text: "AI", className: "text-orange-500" },
-  ];
-
-  const words = '  NeuroGit leverages Gemini AI and Assembly AI to revolutionize repository management.';
-
   return (
-    <div className="min-h-screen bg-black text-white font-montserrat">
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center h-[60vh] pt-20 text-center">
-        
-        
-
-      {/*Brand */}
-      <h1 className = "text-xl md:text-8xl pb-10 bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-600 font-sans font-bold">
-                  NeuroGit
-      </h1>
-   
-
-        {/* TypewriterEffectSmooth */}
-        <TypewriterEffectSmooth
-          words={typewriterWords}
-          className="text-6xl font-bold mb-4"
-          cursorClassName="bg-orange-700"
-        />
-   
-        <TextGenerateEffect className="text-gray-500 pb-7" duration={2} filter = {false} words = {words} />
-
-     
-     
-
-        <div className="space-x-4">
-          <Button className="bg-orange-500 hover:bg-orange-600">
-            <Link href="https://github.com/just-being-aryan/NeuroGit" target="_blank">
-              View on GitHub
+    <div className="min-h-screen bg-archaeology-bg text-archaeology-text">
+      <header className="sticky top-0 z-10 border-b border-archaeology-borderSubtle bg-archaeology-bg/90 backdrop-blur">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <NeuroGitIcon size={44} />
+            <span className="font-display font-extrabold text-2xl tracking-wide text-white">NeuroGit</span>
+          </div>
+          <nav className="flex items-center gap-6">
+            <Link href="/sign-in" className="text-sm text-archaeology-textSecondary hover:text-archaeology-text">Sign In</Link>
+            <Link href="/sign-up" className="text-sm bg-archaeology-orange hover:bg-archaeology-orangeLight text-white px-4 py-2 rounded-md">
+              Get Started Free
             </Link>
-          </Button>
-          <Button variant="outline" className="text-black border-orange-500 hover:bg-orange-500 hover:text-white">
-            
-            <Link href="/sign-up" target="_blank">
-              Get Started
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <span className="inline-block font-mono text-xs tracking-widest text-archaeology-orange border border-archaeology-orange rounded-full px-3 py-1 mb-6">
+            CODE ARCHAEOLOGY
+          </span>
+          <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+            RECONSTRUCT WHY<br />YOUR CODE EXISTS
+          </h1>
+          <p className="text-archaeology-textSecondary text-lg mb-8">
+            Every AI tool today can tell you what your code does. NeuroGit is the only one that reconstructs
+            <em> why</em> — by cross-referencing your commit history with your team&apos;s actual meeting discussions.
+          </p>
+          <div className="flex items-center gap-4 mb-10">
+            <Link href="/sign-up" className="bg-archaeology-orange hover:bg-archaeology-orangeLight text-white px-6 py-3 rounded-md font-medium">
+              Get Started Free
             </Link>
-          </Button>
+          </div>
+          <div className="flex gap-8">
+            <div>
+              <div className="font-display text-2xl font-bold">2.4M+</div>
+              <div className="text-xs text-archaeology-textDim">Commits analyzed</div>
+            </div>
+            <div>
+              <div className="font-display text-2xl font-bold">18k+</div>
+              <div className="text-xs text-archaeology-textDim">Decision records</div>
+            </div>
+            <div>
+              <div className="font-display text-2xl font-bold">340+</div>
+              <div className="text-xs text-archaeology-textDim">Engineering teams</div>
+            </div>
+          </div>
+        </div>
+
+        <WhyDemoCard />
+      </section>
+
+      {/* How it works */}
+      <section className="max-w-6xl mx-auto px-6 py-16 border-t border-archaeology-borderSubtle">
+        <h2 className="font-display text-3xl font-bold text-center mb-12">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {steps.map(step => (
+            <div key={step.n} className="bg-archaeology-card border border-archaeology-border rounded-md p-6">
+              <div className="font-mono text-archaeology-orange text-sm mb-3">{step.n}</div>
+              <step.icon className="size-6 text-archaeology-orange mb-3" />
+              <h3 className="font-display text-xl font-bold mb-2">{step.title}</h3>
+              <p className="text-sm text-archaeology-textSecondary">{step.body}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Features Section*/}
-      <HeroParallax products={products}/>
-      {/*Functioning */}
-      <Timeline data={data} />
-      
-            
+      {/* Differentiator */}
+      <section className="max-w-6xl mx-auto px-6 py-16 border-t border-archaeology-borderSubtle">
+        <h2 className="font-display text-3xl font-bold text-center mb-12">Why NeuroGit</h2>
+        <div className="bg-archaeology-card border border-archaeology-border rounded-md overflow-hidden max-w-2xl mx-auto">
+          <div className="grid grid-cols-4 gap-2 px-4 py-3 border-b border-archaeology-borderSubtle font-mono text-[10px] tracking-widest text-archaeology-textDim">
+            <span></span><span>WHAT</span><span>WHY</span><span>EVIDENCE</span>
+          </div>
+          {comparison.map(row => (
+            <div key={row.name} className={`grid grid-cols-4 gap-2 px-4 py-3 border-b border-archaeology-borderSubtle last:border-0 items-center ${row.name === 'NeuroGit' ? 'bg-archaeology-orangeDim' : ''}`}>
+              <span className={row.name === 'NeuroGit' ? 'text-archaeology-orange font-medium' : 'text-archaeology-text'}>{row.name}</span>
+              {[row.what, row.why, row.evidence].map((v, i) => (
+                <span key={i}>{v ? <Check className="size-4 text-archaeology-green" /> : <X className="size-4 text-archaeology-textDim" />}</span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="max-w-6xl mx-auto px-6 py-20 text-center border-t border-archaeology-borderSubtle">
+        <h2 className="font-display text-3xl md:text-4xl font-extrabold mb-6">Stop losing institutional knowledge.</h2>
+        <Link href="/sign-up" className="inline-block bg-archaeology-orange hover:bg-archaeology-orangeLight text-white px-8 py-3 rounded-md font-medium">
+          Get Started Free
+        </Link>
+      </section>
+
+      <footer className="border-t border-archaeology-borderSubtle py-8 text-center text-xs text-archaeology-textDim">
+        © {new Date().getFullYear()} NeuroGit. Code Archaeology for engineering teams.
+      </footer>
     </div>
   );
 }
-
-
-export const products = [
-  {
-    title: "vercel",
-    link: "https://vercel.com",
-    thumbnail:
-      "/vercel.png",
-  },
-  {
-    title: "Assembly AI",
-    link: "https://www.assemblyai.com/",
-    thumbnail:
-      "/assembly.png",
-  },
-  {
-    title: "ShadcnUi",
-    link: "https://ui.shadcn.com/",
-    thumbnail:
-      "/shadcn.jpg",
-  },
- 
-  {
-    title: "Gemini AI",
-    link: "https://deepmind.google/technologies/gemini/",
-    thumbnail:
-      "/gemini.png",
-  },
-  {
-    title: "Stripe",
-    link: "https://stripe.com/in/use-cases/global-businesses?utm_campaign=APAC_IN_EN_Search_Brand_Core_EXA-22293766222&utm_medium=cpc&utm_source=google&ad_content=735084253675&utm_term=stripe&utm_matchtype=e&utm_adposition=&utm_device=c&gad_source=1&gclid=CjwKCAjwnPS-BhBxEiwAZjMF0lH7VzJguw1c0N5bqhL-FYn0PRY5KN5QVLYaByFQCiAEHkMcTYWaphoCrToQAvD_BwE",
-    thumbnail:
-      "/stripe.png",
-  },
-  {
-    title: "Prisma",
-    link: "https://www.prisma.io/",
-    thumbnail:
-      "/prisma.png",
-  },
- 
-  {
-    title: "Clerk",
-    link: "https://clerk.com/",
-    thumbnail:
-      "/clerk.png",
-  },
-  {
-    title: "Aceternity UI",
-    link: "https://ui.aceternity.com",
-    thumbnail:
-      "https://aceternity.com/images/products/thumbnails/new/aceternityui.png",
-  },
-  {
-    title: "Tailwind Master Kit",
-    link: "https://tailwindmasterkit.com",
-    thumbnail:
-      "https://aceternity.com/images/products/thumbnails/new/tailwindmasterkit.png",
-  },
-  {
-    title: "SmartBridge",
-    link: "https://smartbridgetech.com",
-    thumbnail:
-      "https://aceternity.com/images/products/thumbnails/new/smartbridge.png",
-  },
-  {
-    title: "Renderwork Studio",
-    link: "https://renderwork.studio",
-    thumbnail:
-      "https://aceternity.com/images/products/thumbnails/new/renderwork.png",
-  },
- 
-  {
-    title: "NextJS",
-    link: "https://nextjs.org/",
-    thumbnail:
-      "/nextjs.png",
-  },
-  {
-    title: "TypeScript",
-    link: "https://www.typescriptlang.org",
-    thumbnail:
-      "/typescript.png",
-  },
-  {
-    title: "Neon",
-    link: "https://neon.tech/?gad_source=1&gclid=CjwKCAjwnPS-BhBxEiwAZjMF0k1EiOAp8oKZAxUcxZOcxIiwiGjPN4Mu62x-RoE_dtOWhtyp9CwGMxoCn9wQAvD_BwE",
-    thumbnail:
-      "/neon.png",
-  },
-  {
-    title: "E Free Invoice",
-    link: "https://efreeinvoice.com",
-    thumbnail:
-      "https://aceternity.com/images/products/thumbnails/new/efreeinvoice.png",
-  },
-];

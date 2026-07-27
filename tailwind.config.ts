@@ -8,8 +8,16 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'var(--font-geist-sans)',
+  				'var(--font-inter)',
                     ...fontFamily.sans
+                ],
+  			display: [
+  				'var(--font-barlow-condensed)',
+                    ...fontFamily.sans
+                ],
+  			mono: [
+  				'var(--font-dm-mono)',
+                    ...fontFamily.mono
                 ]
   		},
   		borderRadius: {
@@ -67,6 +75,28 @@ export default {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			archaeology: {
+  				bg: '#080808',
+  				surface: '#0D0D0D',
+  				card: '#131313',
+  				cardHover: '#1A1A1A',
+  				border: '#222222',
+  				borderSubtle: '#181818',
+  				orange: '#F75500',
+  				orangeLight: '#FF7A29',
+  				orangeDim: 'rgba(247, 85, 0, 0.15)',
+  				orangeGlow: 'rgba(247, 85, 0, 0.35)',
+  				text: '#EFEFEF',
+  				textSecondary: '#999999',
+  				textDim: '#555555',
+  				green: '#22C55E',
+  				greenDim: 'rgba(34, 197, 94, 0.12)',
+  				blue: '#60A5FA',
+  				blueDim: 'rgba(96, 165, 250, 0.12)',
+  				yellow: '#FBBF24',
+  				yellowDim: 'rgba(251, 191, 36, 0.12)',
+  				red: '#F87171'
   			}
   		},
   		keyframes: {

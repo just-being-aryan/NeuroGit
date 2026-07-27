@@ -2,6 +2,7 @@ import { z } from "zod"
 import { createTRPCRouter,protectedProcedure, publicProcedure } from "../trpc"
 import { pollCommits } from "@/lib/github"
 import { checkCredits, indexGithubRepo } from "@/lib/github-loader"
+import { generateDecisionRecord } from "@/lib/decisionRecord"
 
 
 
@@ -37,7 +38,7 @@ export const projectRouter = createTRPCRouter({
             
         })
         await indexGithubRepo(project.id,input.githubUrl, input.githubToken)
-        await pollCommits(project.id)
+        await pollCommits(project.id, false) // skip linking: a brand-new project has no meetings yet
         //we need to decrement user credits to decrement by the file count
         await ctx.db.user.update({where: {id: ctx.user.userId!}, data: {credits : {decrement: fileCount}}})
         return project
@@ -56,11 +57,32 @@ export const projectRouter = createTRPCRouter({
         })
     }),
     getCommits:protectedProcedure.input(z.object ({
-        projectId : z.string()
-
+        projectId : z.string(),
+        limit: z.number().optional(),
     })).query(async({ctx,input}) =>{
         pollCommits(input.projectId).then().catch(console.error)
-        return await ctx.db.commit.findMany({where:{projectId:input.projectId}})
+        return await ctx.db.commit.findMany({
+            where:{projectId:input.projectId},
+            include: {
+                _count: {select: {issueLinks: true}},
+                decisionRecord: {select: {id: true, title: true, confidence: true}},
+                issueLinks: {
+                    orderBy: {combinedScore: 'desc'},
+                    take: 1,
+                    select: {issue: {select: {gist: true}}},
+                },
+            },
+            orderBy: {commitDate: 'desc'},
+            take: input.limit,
+        })
+    }),
+
+    getCommitStats: protectedProcedure.input(z.object({projectId: z.string()})).query(async({ctx,input}) => {
+        const [total, linked] = await Promise.all([
+            ctx.db.commit.count({where: {projectId: input.projectId}}),
+            ctx.db.commit.count({where: {projectId: input.projectId, issueLinks: {some: {}}}}),
+        ])
+        return {total, linked}
     }),
    
     saveAnswer:protectedProcedure.input(z.object({
@@ -119,7 +141,10 @@ export const projectRouter = createTRPCRouter({
             return await ctx.db.meeting.delete({where: {id: input.meetingId}})
     }),
     getMeetingById:protectedProcedure.input(z.object({meetingId: z.string()})).query(async({ctx,input}) => {
-    return await ctx.db.meeting.findUnique({where: {id: input.meetingId}, include: {issues: true}})
+    return await ctx.db.meeting.findUnique({
+        where: {id: input.meetingId},
+        include: {issues: {include: {commitLinks: {include: {commit: true}, orderBy: {combinedScore: 'desc'}}}}}
+    })
    }),
 
    archiveProject: protectedProcedure.input(z.object({projectId: z.string()})).mutation(async ({ctx,input}) => {
@@ -136,11 +161,74 @@ export const projectRouter = createTRPCRouter({
     return await ctx.db.user.findUnique({where: {id: ctx.user.userId!}, select: {credits:true}})
    }),
 
+   getTransactions: protectedProcedure.query(async ({ctx}) => {
+    return await ctx.db.stripeTransaction.findMany({
+        where: {userId: ctx.user.userId!},
+        orderBy: {createdAt: 'desc'}
+    })
+   }),
+
    checkCredits: protectedProcedure.input(z.object({githubUrl: z.string(),githubToken:z.string().optional() })).mutation(async({ctx,input}) => {
     const fileCount = await checkCredits(input.githubUrl, input.githubToken)
     const userCredits = await ctx.db.user.findUnique({where: {id: ctx.user.userId!}, select: {credits: true}})
     return {fileCount,userCredits:userCredits?.credits || 0}
+   }),
+
+   // CODE ARCHAEOLOGY
+
+   getDecisionRecords: protectedProcedure.input(z.object({projectId: z.string()})).query(async({ctx,input}) => {
+    return await ctx.db.decisionRecord.findMany({
+        where: {projectId: input.projectId},
+        include: {commit: true, issue: {include: {meeting: true}}},
+        orderBy: {createdAt: 'desc'}
+    })
+   }),
+
+   getDecisionRecordByCommit: protectedProcedure.input(z.object({commitId: z.string()})).query(async({ctx,input}) => {
+    return await ctx.db.decisionRecord.findUnique({
+        where: {commitId: input.commitId},
+        include: {commit: true, issue: {include: {meeting: true}}}
+    })
+   }),
+
+   getDecisionRecord: protectedProcedure.input(z.object({id: z.string()})).query(async({ctx,input}) => {
+    return await ctx.db.decisionRecord.findUnique({
+        where: {id: input.id},
+        include: {commit: true, issue: {include: {meeting: true}}}
+    })
+   }),
+
+   regenerateDecisionRecord: protectedProcedure.input(z.object({commitId: z.string()})).mutation(async({ctx,input}) => {
+    await generateDecisionRecord(input.commitId)
+    return await ctx.db.decisionRecord.findUnique({
+        where: {commitId: input.commitId},
+        include: {commit: true, issue: {include: {meeting: true}}}
+    })
+   }),
+
+   getCommitLinks: protectedProcedure.input(z.object({commitId: z.string()})).query(async({ctx,input}) => {
+    return await ctx.db.commitIssueLink.findMany({
+        where: {commitId: input.commitId},
+        include: {issue: {include: {meeting: true}}},
+        orderBy: {combinedScore: 'desc'}
+    })
+   }),
+
+   saveWhyAnswer: protectedProcedure.input(z.object({
+    projectId: z.string(),
+    answer: z.string(),
+    question: z.string(),
+    citations: z.any(),
+   })).mutation(async({ctx,input}) => {
+    return await ctx.db.question.create({
+        data: {
+            answer: input.answer,
+            citations: input.citations,
+            projectId: input.projectId,
+            question: input.question,
+            userId: ctx.user.userId!,
+        }
+    })
    })
 
-    
 })

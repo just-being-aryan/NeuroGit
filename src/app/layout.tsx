@@ -2,10 +2,29 @@ import "@/styles/globals.css";
 
 import {ClerkProvider} from "@clerk/nextjs"
 import { GeistSans } from "geist/font/sans";
+import { Inter, Barlow_Condensed, DM_Mono } from "next/font/google";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "sonner";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-inter",
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-barlow-condensed",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-dm-mono",
+});
 
 export const metadata: Metadata = {
   title: "NeuroGit",
@@ -18,13 +37,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-        <html lang="en" className={`${GeistSans.variable}`}>
+        <html lang="en" className={`dark ${GeistSans.variable} ${inter.variable} ${barlowCondensed.variable} ${dmMono.variable}`}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster richColors/>
       </body>
     </html>
     </ClerkProvider>
-    
+
   );
 }

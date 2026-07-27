@@ -76,9 +76,12 @@ export async function summariseCode(doc: Document) {
 
 export async function generateEmbedding(sumary:string) {
     const model = genAI.getGenerativeModel({
-        model: 'text-embedding-004'
+        model: 'gemini-embedding-001'
     })
-    const result = await model.embedContent(sumary)              //spelling
+    const result = await model.embedContent({
+        content: { role: 'user', parts: [{ text: sumary }] },
+        outputDimensionality: 768,
+    } as any)              //spelling
     const embedding = result.embedding
     return embedding.values
 }
