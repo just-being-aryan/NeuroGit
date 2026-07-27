@@ -7,9 +7,6 @@ import { db } from '@/server/db'
 import { Prisma } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
 
-// retrieval + streaming generation can take a while - extend past Vercel's default ~10s timeout
-export const maxDuration = 60
-
 const QUESTION_CREDIT_COST = 1
 
 const google = createGoogleGenerativeAI({

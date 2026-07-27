@@ -1,5 +1,9 @@
 'use client'
 
+// Server Actions (askQuestion, used by AskQuestionCard below) inherit their execution
+// timeout from this page - extend past Vercel's default ~10s.
+export const maxDuration = 60
+
 import React from 'react'
 import useProject from '@/hooks/use-project'
 import { ExternalLink, Github, GitCommitHorizontal, Link2, FileStack, ArrowRight } from 'lucide-react'

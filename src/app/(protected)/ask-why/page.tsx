@@ -1,5 +1,9 @@
 'use client'
 
+// Server Actions (askWhy) inherit their execution timeout from this page - extend
+// past Vercel's default ~10s so retrieval + streaming generation has room to finish.
+export const maxDuration = 60
+
 import React, { useState } from 'react'
 import useProject from '@/hooks/use-project'
 import { askWhy } from '@/lib/archaeology'
