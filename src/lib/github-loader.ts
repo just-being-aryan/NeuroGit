@@ -65,8 +65,13 @@ export const indexGithubRepo = async(projectId: string, githubUrl:string,githubT
 
 
 const generateEmbeddings = async(docs:Document[]) => {
-    return await Promise.all(docs.map(async doc => {
+    const results = await Promise.allSettled(docs.map(async doc => {
         const summary = await summariseCode(doc)
+        if (!summary || !summary.trim()) {
+            // empty/failed summary (e.g. binary or unparseable file) - skip rather than
+            // sending an empty Part to Gemini, which errors and would otherwise kill the whole batch
+            return null
+        }
         const embedding = await generateEmbedding(summary)
         return {
             summary,
@@ -75,4 +80,12 @@ const generateEmbeddings = async(docs:Document[]) => {
             fileName : doc.metadata.source,
         }
     }))
+
+    return results.map(result => {
+        if (result.status === 'rejected') {
+            console.error('Failed to embed a file, skipping it:', result.reason)
+            return null
+        }
+        return result.value
+    })
 }
