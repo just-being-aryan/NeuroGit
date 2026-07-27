@@ -94,33 +94,38 @@ export async function askWhy(
     ]
 
     ;(async () => {
-        const { textStream } = await streamText({
-            model: google('gemini-flash-latest'),
-            prompt: `
-            You are an AI assistant reconstructing the reasoning trail behind a piece of code - not just what it does, but WHY it was built this way.
-            Your target audience is a developer trying to understand the history and rationale behind a decision in the codebase.
-            Use the commit history and meeting discussion excerpts below as evidence to explain the "why", in addition to the code itself.
-            Cite every source you use inline with bracketed tags exactly as they appear in the context, e.g. [commit abc1234], [meeting "Sprint Planning" at 04:12], [file src/lib/foo.ts].
-            Do not invent anything that is not drawn directly from the context.
-            If the context does not provide enough evidence to explain "why", say so plainly instead of guessing at motives.
+        try {
+            const { textStream } = await streamText({
+                model: google('gemini-flash-latest'),
+                prompt: `
+                You are an AI assistant reconstructing the reasoning trail behind a piece of code - not just what it does, but WHY it was built this way.
+                Your target audience is a developer trying to understand the history and rationale behind a decision in the codebase.
+                Use the commit history and meeting discussion excerpts below as evidence to explain the "why", in addition to the code itself.
+                Cite every source you use inline with bracketed tags exactly as they appear in the context, e.g. [commit abc1234], [meeting "Sprint Planning" at 04:12], [file src/lib/foo.ts].
+                Do not invent anything that is not drawn directly from the context.
+                If the context does not provide enough evidence to explain "why", say so plainly instead of guessing at motives.
 
-            START CONTEXT BLOCK
-            ${context}
-            END OF CONTEXT BLOCK
+                START CONTEXT BLOCK
+                ${context}
+                END OF CONTEXT BLOCK
 
-            START QUESTION
-            ${question}
-            END OF QUESTION
+                START QUESTION
+                ${question}
+                END OF QUESTION
 
-            Answer primarily in prose - only include a code snippet if it's a small, targeted excerpt genuinely needed to support a specific claim, never a full file dump. Be detailed, and make sure every claim about "why" is backed by an inline citation.
-        `,
-        })
+                Answer primarily in prose - only include a code snippet if it's a small, targeted excerpt genuinely needed to support a specific claim, never a full file dump. Be detailed, and make sure every claim about "why" is backed by an inline citation.
+            `,
+            })
 
-        for await (const delta of textStream) {
-            stream.update(delta)
+            for await (const delta of textStream) {
+                stream.update(delta)
+            }
+
+            stream.done()
+        } catch (error) {
+            console.error('askWhy generation failed:', error)
+            stream.error(error instanceof Error ? error.message : 'Failed to generate an answer')
         }
-
-        stream.done()
     })()
 
     return {

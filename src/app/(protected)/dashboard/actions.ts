@@ -47,36 +47,41 @@ export async function askQuestion(question : string, projectId:string)
     }
 
     (async() => {
-        const {textStream} = await streamText({
-            model: google('gemini-flash-latest'),
-            prompt: `
-            You are an AI code assistant who answers questions about the codebase. Your target audience is a technical intern who is looking to understand something.
+        try {
+            const {textStream} = await streamText({
+                model: google('gemini-flash-latest'),
+                prompt: `
+                You are an AI code assistant who answers questions about the codebase. Your target audience is a technical intern who is looking to understand something.
 
-            How to shape your answer depends on what kind of question this is:
-            - If it's a general/conceptual question (e.g. "what is this project about", "what does this app do"), answer entirely in prose. Do not include a code block unless the question specifically asks to see code.
-            - If it's a question about a specific file, function, or how something works, lead with a clear prose explanation first, then include only the small, targeted snippet of code that's actually relevant to illustrate your point - never paste an entire file. Explain what the snippet does and why it answers the question.
-            Never respond with just a code block and no explanation - the explanation is the actual answer, the code (when included) is supporting evidence.
+                How to shape your answer depends on what kind of question this is:
+                - If it's a general/conceptual question (e.g. "what is this project about", "what does this app do"), answer entirely in prose. Do not include a code block unless the question specifically asks to see code.
+                - If it's a question about a specific file, function, or how something works, lead with a clear prose explanation first, then include only the small, targeted snippet of code that's actually relevant to illustrate your point - never paste an entire file. Explain what the snippet does and why it answers the question.
+                Never respond with just a code block and no explanation - the explanation is the actual answer, the code (when included) is supporting evidence.
 
-            START CONTEXT BLOCK
-            ${context}
-            END OF CONTEXT BLOCK
+                START CONTEXT BLOCK
+                ${context}
+                END OF CONTEXT BLOCK
 
-            START QUESTION
-            ${question}
-            END OF QUESTION
+                START QUESTION
+                ${question}
+                END OF QUESTION
 
-            Take into account any CONTEXT BLOCK provided above.
-            If the context does not provide the answer to the question, say "I'm sorry, but I don't have the answer to that question."
-            Do not invent anything that is not drawn directly from the context.
-            Answer in markdown syntax. Be detailed and unambiguous, but concise - don't pad the answer with unnecessary code.
-        `,
-        });
+                Take into account any CONTEXT BLOCK provided above.
+                If the context does not provide the answer to the question, say "I'm sorry, but I don't have the answer to that question."
+                Do not invent anything that is not drawn directly from the context.
+                Answer in markdown syntax. Be detailed and unambiguous, but concise - don't pad the answer with unnecessary code.
+            `,
+            });
 
-        for await (const delta of textStream) {
-            stream.update(delta)
+            for await (const delta of textStream) {
+                stream.update(delta)
+            }
+
+            stream.done()
+        } catch (error) {
+            console.error('askQuestion generation failed:', error)
+            stream.error(error instanceof Error ? error.message : 'Failed to generate an answer')
         }
-
-        stream.done()
     })()
 
     return {
