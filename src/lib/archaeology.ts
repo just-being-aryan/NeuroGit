@@ -96,7 +96,7 @@ export async function askWhy(
 
     ;(async () => {
         try {
-            const { textStream } = await streamText({
+            const result = streamText({
                 model: google('gemini-flash-latest'),
                 prompt: `
                 You are an AI assistant reconstructing the reasoning trail behind a piece of code - not just what it does, but WHY it was built this way.
@@ -118,8 +118,21 @@ export async function askWhy(
             `,
             })
 
-            for await (const delta of textStream) {
+            let receivedAny = false
+            for await (const delta of result.textStream) {
+                receivedAny = true
                 stream.update(delta)
+            }
+
+            if (!receivedAny) {
+                const finishReason = await result.finishReason.catch(() => 'unknown')
+                console.error(`askWhy produced an empty response. finishReason: ${finishReason}`)
+                stream.error(
+                    finishReason === 'content-filter'
+                        ? "Gemini's safety filter blocked this response - try rephrasing the question."
+                        : `The model returned an empty response (reason: ${finishReason}). Try rephrasing the question.`
+                )
+                return
             }
 
             stream.done()

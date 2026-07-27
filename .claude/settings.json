@@ -7,7 +7,8 @@
       "Bash(node -e ' *)",
       "Bash(curl -s --max-time 5 -o /dev/null -w \"port 3000: %{http_code}\\\\n\" http://localhost:3000/)",
       "Bash(curl -s --max-time 5 -o /dev/null -w \"port 3001: %{http_code}\\\\n\" http://localhost:3001/)",
-      "Bash(PGPASSWORD=npg_Z3AJjlDm5oPF psql \"postgresql://neurogit_owner:npg_Z3AJjlDm5oPF@ep-rapid-union-a1qlpzhy-pooler.ap-southeast-1.aws.neon.tech/neurogit?sslmode=require\" -c \"SELECT p.id, p.name, COUNT\\(sce.id\\) as total_files, COUNT\\(sce.\\\\\"summaryEmbedding\\\\\"\\) as embedded_files, \\(SELECT COUNT\\(*\\) FROM \\\\\"Commit\\\\\" c WHERE c.\\\\\"projectId\\\\\" = p.id\\) as commits FROM \\\\\"Project\\\\\" p LEFT JOIN \\\\\"SourceCodeEmbedding\\\\\" sce ON sce.\\\\\"projectId\\\\\" = p.id WHERE p.name = 'epaas-2' GROUP BY p.id, p.name ORDER BY p.\\\\\"createdAt\\\\\" DESC;\")"
+      "Bash(PGPASSWORD=npg_Z3AJjlDm5oPF psql \"postgresql://neurogit_owner:npg_Z3AJjlDm5oPF@ep-rapid-union-a1qlpzhy-pooler.ap-southeast-1.aws.neon.tech/neurogit?sslmode=require\" -c \"SELECT p.id, p.name, COUNT\\(sce.id\\) as total_files, COUNT\\(sce.\\\\\"summaryEmbedding\\\\\"\\) as embedded_files, \\(SELECT COUNT\\(*\\) FROM \\\\\"Commit\\\\\" c WHERE c.\\\\\"projectId\\\\\" = p.id\\) as commits FROM \\\\\"Project\\\\\" p LEFT JOIN \\\\\"SourceCodeEmbedding\\\\\" sce ON sce.\\\\\"projectId\\\\\" = p.id WHERE p.name = 'epaas-2' GROUP BY p.id, p.name ORDER BY p.\\\\\"createdAt\\\\\" DESC;\")",
+      "Bash(xargs grep -l \"readStreamableValue\")"
     ]
   }
 }

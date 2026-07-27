@@ -49,7 +49,7 @@ export async function askQuestion(question : string, projectId:string)
 
     (async() => {
         try {
-            const {textStream} = await streamText({
+            const result = streamText({
                 model: google('gemini-flash-latest'),
                 prompt: `
                 You are an AI code assistant who answers questions about the codebase. Your target audience is a technical intern who is looking to understand something.
@@ -74,8 +74,21 @@ export async function askQuestion(question : string, projectId:string)
             `,
             });
 
-            for await (const delta of textStream) {
+            let receivedAny = false
+            for await (const delta of result.textStream) {
+                receivedAny = true
                 stream.update(delta)
+            }
+
+            if (!receivedAny) {
+                const finishReason = await result.finishReason.catch(() => 'unknown')
+                console.error(`askQuestion produced an empty response. finishReason: ${finishReason}`)
+                stream.error(
+                    finishReason === 'content-filter'
+                        ? "Gemini's safety filter blocked this response - try rephrasing the question."
+                        : `The model returned an empty response (reason: ${finishReason}). Try rephrasing the question.`
+                )
+                return
             }
 
             stream.done()
