@@ -2,6 +2,7 @@
 //TO facilitate webhook responsible for transferring credits to our account for billing
 
 import { db } from "@/server/db";
+import { clerkClient } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
     let event : Stripe.Event
 
 
-    try { 
+    try {
         event = Stripe.webhooks.constructEvent(body,signature,process.env.STRIPE_WEBHOOK_SECRET! )
     } catch (error) {
         return NextResponse.json({error: 'Invalid Signature'},{status:400})
@@ -34,15 +35,42 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({error: 'Missing userId or credits'}, {status: 400})
         }
 
-        await db.stripeTransaction.create({data: {userId, credits}})
-        await db.user.update({
-            where: {id: userId}, data: {
-                credits: {
-                    increment: credits
-                }
+        try {
+            const existingUser = await db.user.findUnique({where: {id: userId}})
+
+            if (!existingUser) {
+                // User row is normally created by /sync-user right after sign-up, but that's a
+                // one-time redirect - if it was ever missed, this account has no DB row yet.
+                // Recover here instead of failing the whole webhook.
+                const client = await clerkClient()
+                const clerkUser = await client.users.getUser(userId)
+                await db.user.upsert({
+                    where: {id: userId},
+                    update: {},
+                    create: {
+                        id: userId,
+                        emailAddress: clerkUser.emailAddresses[0]?.emailAddress ?? '',
+                        imageUrl: clerkUser.imageUrl,
+                        firstName: clerkUser.firstName,
+                        lastName: clerkUser.lastName,
+                    },
+                })
             }
-        })
-        return NextResponse.json({message: 'Credits added successfully'}, {status: 200})
+
+            await db.stripeTransaction.create({data: {userId, credits}})
+            await db.user.update({
+                where: {id: userId}, data: {
+                    credits: {
+                        increment: credits
+                    }
+                }
+            })
+
+            return NextResponse.json({message: 'Credits added successfully'}, {status: 200})
+        } catch (error) {
+            console.error('Failed to process checkout.session.completed', error)
+            return NextResponse.json({error: 'Internal error processing webhook'}, {status: 500})
+        }
     }
 
 
