@@ -7,6 +7,9 @@ import { db } from '@/server/db'
 import { Prisma } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
 
+// retrieval + streaming generation can take a while - extend past Vercel's default ~10s timeout
+export const maxDuration = 60
+
 const QUESTION_CREDIT_COST = 1
 
 const google = createGoogleGenerativeAI({
@@ -112,7 +115,7 @@ export async function askWhy(
             ${question}
             END OF QUESTION
 
-            Answer in markdown syntax, with code snippets if needed. Be detailed, and make sure every claim about "why" is backed by an inline citation.
+            Answer primarily in prose - only include a code snippet if it's a small, targeted excerpt genuinely needed to support a specific claim, never a full file dump. Be detailed, and make sure every claim about "why" is backed by an inline citation.
         `,
         })
 

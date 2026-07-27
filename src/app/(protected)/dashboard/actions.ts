@@ -6,6 +6,9 @@ import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
 import { auth } from '@clerk/nextjs/server'
 
+// retrieval + streaming generation can take a while - extend past Vercel's default ~10s timeout
+export const maxDuration = 60
+
 const QUESTION_CREDIT_COST = 1
 
 const google = createGoogleGenerativeAI({
@@ -50,25 +53,25 @@ export async function askQuestion(question : string, projectId:string)
         const {textStream} = await streamText({
             model: google('gemini-flash-latest'),
             prompt: `
-            You are a ai code assistant who answers questions about the coebase. Your target audience is a technical intern who is looking to understand something
-            AI assistant is a brand new, powerful, human-like artificial intelligence.
-            The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-            AI is well behaved and well-mannered individual.
-            AI is always friendly, kind and inspiring, and he is eager to provide vivid and thoughtfull responses to the user.
-            AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in an conversation
-            if the question is asking about code or a specific file, AI will provide detailed answer, giving step by step instructions , including code.
+            You are an AI code assistant who answers questions about the codebase. Your target audience is a technical intern who is looking to understand something.
+
+            How to shape your answer depends on what kind of question this is:
+            - If it's a general/conceptual question (e.g. "what is this project about", "what does this app do"), answer entirely in prose. Do not include a code block unless the question specifically asks to see code.
+            - If it's a question about a specific file, function, or how something works, lead with a clear prose explanation first, then include only the small, targeted snippet of code that's actually relevant to illustrate your point - never paste an entire file. Explain what the snippet does and why it answers the question.
+            Never respond with just a code block and no explanation - the explanation is the actual answer, the code (when included) is supporting evidence.
+
             START CONTEXT BLOCK
             ${context}
             END OF CONTEXT BLOCK
-            
+
             START QUESTION
             ${question}
             END OF QUESTION
-            AI assistant will take into account any CONTEXT BLOCK that is provided in a coversation
-            If the context does not provide the answer to quesrtion. the AI assistant will say, "I'm sorry, but i dont have the answer to that question"
-            AI assistant will not apologize for previous responses. but instead will indicate new information was gained.
-            AI assistant will not invent anything that is not drawn directly from the context.
-            Answer in markdown syntax, with code snippets if needed. Be as detailed as possible when answering, make sure there is no ambiguity and include
+
+            Take into account any CONTEXT BLOCK provided above.
+            If the context does not provide the answer to the question, say "I'm sorry, but I don't have the answer to that question."
+            Do not invent anything that is not drawn directly from the context.
+            Answer in markdown syntax. Be detailed and unambiguous, but concise - don't pad the answer with unnecessary code.
         `,
         });
 

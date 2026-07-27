@@ -87,7 +87,11 @@ const QAPage = () => {
             <SheetTitle>
               {question.question}
             </SheetTitle>
-            <MDEditor.Markdown source = {question.answer} />
+            <MDEditor.Markdown
+              source = {question.answer}
+              className="!bg-transparent"
+              style={{backgroundColor: 'transparent', color: '#EFEFEF'}}
+            />
             <CodeReferences filesReferences={(question.filesReferences ?? []) as any}>
 
             </CodeReferences>

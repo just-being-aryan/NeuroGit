@@ -88,13 +88,12 @@ const AskQuestionCard = () => {
             </DialogHeader>
 
             
-            <MDEditor.Markdown 
-            source = {answer} 
-            className='max-w-[70vw] h-full max-h-[40vh] overflow-scroll'
+            <MDEditor.Markdown
+            source = {answer}
+            className='max-w-[70vw] h-full max-h-[40vh] overflow-scroll !bg-transparent'
             style={{
-                backgroundColor: 'white', // Set white background
-                color : 'black',
-                overflow: "hidden", // Disable scrolling
+                backgroundColor: 'transparent',
+                color: '#EFEFEF',
               }} />
 
 
