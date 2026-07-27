@@ -19,12 +19,8 @@ export const projectRouter = createTRPCRouter({
         if(!user){
             throw new Error("User not found")
         }
-        const currentCredits = user.credits || 0
-        const fileCount = await checkCredits(input.githubUrl, input.githubToken)
-        if(currentCredits < fileCount) {
-            throw new Error('Insufficient Credits!')
-        }
 
+        // Repo indexing itself is free - credits are only spent on questions asked (Ask Why / code Q&A).
         const project = await ctx.db.project.create({
             data: {
                 githubUrl: input.githubUrl,
@@ -35,14 +31,12 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             }
-            
+
         })
         await indexGithubRepo(project.id,input.githubUrl, input.githubToken)
         await pollCommits(project.id, false) // skip linking: a brand-new project has no meetings yet
-        //we need to decrement user credits to decrement by the file count
-        await ctx.db.user.update({where: {id: ctx.user.userId!}, data: {credits : {decrement: fileCount}}})
         return project
-       
+
     }),
     getProjects:protectedProcedure.query(async({ctx}) => {
         return await ctx.db.project.findMany({

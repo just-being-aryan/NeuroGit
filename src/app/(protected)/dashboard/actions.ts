@@ -4,7 +4,9 @@ import {createStreamableValue} from 'ai/rsc'
 import {createGoogleGenerativeAI} from '@ai-sdk/google'
 import { generateEmbedding } from '@/lib/gemini'
 import { db } from '@/server/db'
+import { auth } from '@clerk/nextjs/server'
 
+const QUESTION_CREDIT_COST = 1
 
 const google = createGoogleGenerativeAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -13,6 +15,15 @@ const google = createGoogleGenerativeAI({
 
 export async function askQuestion(question : string, projectId:string)
 {
+    const {userId} = await auth()
+    if (!userId) throw new Error('Unauthorized')
+
+    const user = await db.user.findUnique({where: {id: userId}, select: {credits: true}})
+    if (!user || user.credits < QUESTION_CREDIT_COST) {
+        throw new Error('Insufficient credits to ask a question')
+    }
+    await db.user.update({where: {id: userId}, data: {credits: {decrement: QUESTION_CREDIT_COST}}})
+
     const stream = createStreamableValue()
 
     const queryVector= await generateEmbedding(question)

@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import useRefetch from '@/hooks/use-refetch'
 import { api } from '@/trpc/react'
-import { cn } from '@/lib/utils'
 
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -51,9 +50,6 @@ const CreatePage = () => {
   }
 
   
-  const hasEnoughCredits = checkCredits?.data?.userCredits?checkCredits.data.fileCount <= checkCredits.data.userCredits: true
-
-
     return (
     <div className = "flex items-center gap-12 h-full justify-center bg-archaeology-bg">
         <img src='/undraw_github.svg' className = "h-56 w-auto" />
@@ -94,36 +90,16 @@ const CreatePage = () => {
               />
               {!!checkCredits.data && (
                 <div className='mt-4 bg-archaeology-surface border border-archaeology-border rounded-md p-4'>
-                  <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-3">CREDIT COST PREVIEW</div>
-                  <div className="grid grid-cols-3 gap-4 mb-3">
-                    <div>
-                      <div className="font-mono text-[9px] tracking-widest text-archaeology-textDim mb-1">FILES FOUND</div>
-                      <div className="font-display text-xl font-bold text-archaeology-text">{checkCredits.data.fileCount}</div>
-                    </div>
-                    <div>
-                      <div className="font-mono text-[9px] tracking-widest text-archaeology-textDim mb-1">CREDITS</div>
-                      <div className="font-display text-xl font-bold text-archaeology-orange">{checkCredits.data.fileCount}</div>
-                    </div>
-                    <div>
-                      <div className="font-mono text-[9px] tracking-widest text-archaeology-textDim mb-1">BALANCE</div>
-                      <div className="font-display text-xl font-bold text-archaeology-green">{checkCredits.data.userCredits}</div>
-                    </div>
-                  </div>
-                  <div className="h-1.5 bg-archaeology-card rounded-full overflow-hidden">
-                    <div
-                      className={cn('h-full', hasEnoughCredits ? 'bg-archaeology-orange' : 'bg-archaeology-red')}
-                      style={{width: `${Math.min(100, (checkCredits.data.fileCount / Math.max(checkCredits.data.userCredits, 1)) * 100)}%`}}
-                    />
-                  </div>
+                  <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-3">REPOSITORY PREVIEW</div>
+                  <div className="font-mono text-[9px] tracking-widest text-archaeology-textDim mb-1">FILES FOUND</div>
+                  <div className="font-display text-xl font-bold text-archaeology-text">{checkCredits.data.fileCount}</div>
                   <p className="text-xs text-archaeology-textDim mt-2">
-                    {hasEnoughCredits
-                      ? `${checkCredits.data.userCredits - checkCredits.data.fileCount} credits remaining after indexing`
-                      : 'Not enough credits to index this repository'}
+                    Indexing is free - credits are only spent on questions you ask.
                   </p>
                 </div>
               )}
               <div className='h-4'></div>
-              <Button type = 'submit' disabled = {createProject.isPending || checkCredits.isPending || !hasEnoughCredits} className="bg-archaeology-orange hover:bg-archaeology-orangeLight text-white">
+              <Button type = 'submit' disabled = {createProject.isPending || checkCredits.isPending} className="bg-archaeology-orange hover:bg-archaeology-orangeLight text-white">
                 {!!checkCredits.data? 'Create Project' : 'Check Credits'}
               </Button>
 

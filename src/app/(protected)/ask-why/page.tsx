@@ -34,13 +34,19 @@ const AskWhyPage = () => {
     setLoading(true)
     setAsked(true)
 
-    const {output, citations: cites} = await askWhy(finalQuestion, project.id)
-    setCitations(cites)
+    try {
+      const {output, citations: cites} = await askWhy(finalQuestion, project.id)
+      setCitations(cites)
 
-    for await (const delta of readStreamableValue(output)) {
-      if (delta) setAnswer(ans => ans + delta)
+      for await (const delta of readStreamableValue(output)) {
+        if (delta) setAnswer(ans => ans + delta)
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to ask question')
+      setAsked(false)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const commitCitations = citations.filter((c): c is Extract<WhyCitation, {type: 'commit'}> => c.type === 'commit')

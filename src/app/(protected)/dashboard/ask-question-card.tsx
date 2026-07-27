@@ -36,19 +36,21 @@ const AskQuestionCard = () => {
         setLoading(true)
         
 
-        const {output, filesReferences} = await askQuestion(question,project.id)
-        setOpen(true)
-        setFilesReferences(filesReferences)
+        try {
+            const {output, filesReferences} = await askQuestion(question,project.id)
+            setOpen(true)
+            setFilesReferences(filesReferences)
 
-        for await (const delta of readStreamableValue(output)) {
-            if(delta) {
-                setAnswer(ans => ans + delta)
+            for await (const delta of readStreamableValue(output)) {
+                if(delta) {
+                    setAnswer(ans => ans + delta)
+                }
             }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to ask question')
+        } finally {
+            setLoading(false)
         }
-
-        setLoading(false)
-        
-
     }
 
     const refetch = useRefetch()

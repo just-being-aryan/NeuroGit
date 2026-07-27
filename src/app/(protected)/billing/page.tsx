@@ -2,8 +2,9 @@
 import { Slider } from '@/components/ui/slider'
 import { createCheckoutSession } from '@/lib/stripe'
 import { api } from '@/trpc/react'
-import { Info } from 'lucide-react'
+import { Info, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 import React from 'react'
 
 const TOP_UP_PRESETS = [100, 250, 500, 1000]
@@ -17,8 +18,18 @@ const BillingPage = () => {
 
   return (
     <div className='p-8 bg-archaeology-bg min-h-full'>
-        <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-2">BILLING</div>
-        <h1 className='font-display text-3xl font-extrabold text-archaeology-text mb-6'>Credits & Billing</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-2">BILLING</div>
+            <h1 className='font-display text-3xl font-extrabold text-archaeology-text'>Credits & Billing</h1>
+          </div>
+          <Link
+            href="/create"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-archaeology-border text-archaeology-text hover:bg-archaeology-cardHover"
+          >
+            <Plus className="size-3.5" /> Create Project
+          </Link>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
@@ -30,9 +41,9 @@ const BillingPage = () => {
             <div className="bg-archaeology-orangeDim px-4 py-3 rounded-md border border-archaeology-orange text-archaeology-orangeLight">
               <div className='flex items-center gap-2'>
                   <Info className='size-4'/>
-                  <p className='text-sm'>Each credit allows you to index 1 file in the repository.</p>
+                  <p className='text-sm'>Each credit lets you ask NeuroGit one question.</p>
               </div>
-              <p className='text-sm'>E.g. If your project has 100 files, you will need 100 credits to index it</p>
+              <p className='text-sm'>Repository indexing is free, no matter how large the repo is.</p>
             </div>
 
             <div className="bg-archaeology-card border border-archaeology-border rounded-md overflow-hidden">
@@ -85,8 +96,8 @@ const BillingPage = () => {
 
             <div className="bg-archaeology-card border border-archaeology-border rounded-md p-4">
               <div className="font-mono text-[10px] tracking-widest text-archaeology-textDim mb-2">CREDIT COSTS</div>
-              <p className="text-xs text-archaeology-textSecondary">Repository indexing: 1 credit per file.</p>
-              <p className="text-xs text-archaeology-textDim mt-1">Ask Why, meeting transcription, and Decision Records are currently free.</p>
+              <p className="text-xs text-archaeology-textSecondary">Asking a question (Ask Why or code Q&amp;A): 1 credit.</p>
+              <p className="text-xs text-archaeology-textDim mt-1">Repository indexing, meeting transcription, and Decision Records are free.</p>
             </div>
           </div>
         </div>
