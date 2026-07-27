@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import useRefetch from '@/hooks/use-refetch'
+import useProject from '@/hooks/use-project'
 import { api } from '@/trpc/react'
 
 import React from 'react'
@@ -21,6 +22,7 @@ const CreatePage = () => {
   const createProject = api.project.createProject.useMutation()
   const checkCredits = api.project.checkCredits.useMutation()
   const refetch = useRefetch()
+  const {setProjectId} = useProject()
 
   function onSubmit(data:FormInput) {
 
@@ -30,13 +32,14 @@ const CreatePage = () => {
           name: data.projectName,
           githubToken: data.githubToken
         }, {
-          onSuccess: () => {
+          onSuccess: (newProject) => {
             toast.success('Project created successfully')
+            setProjectId(newProject.id)
             refetch()
             reset()
           },
-          onError: () => {
-            toast.error("Failed to create project")
+          onError: (error) => {
+            toast.error(error.message || "Failed to create project")
           }
       })
     } else{

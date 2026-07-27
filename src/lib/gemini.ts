@@ -5,7 +5,7 @@ import {GoogleGenerativeAI} from '@google/generative-ai'
 import { Document } from '@langchain/core/documents'
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 const model = genAI.getGenerativeModel({
-    model : 'gemini-1.5-flash'
+    model : 'gemini-flash-latest'
 })
 
 export const aiSummariseCommit = async(diff:string) => {
@@ -67,11 +67,9 @@ export async function summariseCode(doc: Document) {
 
     
     } catch (error) {
+        console.error(`Failed to summarise ${doc.metadata.source}:`, error)
         return ''
     }
-    
-
-    
 }
 
 export async function generateEmbedding(sumary:string) {

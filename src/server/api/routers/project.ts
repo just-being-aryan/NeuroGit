@@ -3,6 +3,7 @@ import { createTRPCRouter,protectedProcedure, publicProcedure } from "../trpc"
 import { pollCommits } from "@/lib/github"
 import { checkCredits, indexGithubRepo } from "@/lib/github-loader"
 import { generateDecisionRecord } from "@/lib/decisionRecord"
+import { deleteProjectCascade } from "@/lib/project-cleanup"
 
 
 
@@ -33,8 +34,18 @@ export const projectRouter = createTRPCRouter({
             }
 
         })
-        await indexGithubRepo(project.id,input.githubUrl, input.githubToken)
-        await pollCommits(project.id, false) // skip linking: a brand-new project has no meetings yet
+
+        try {
+            await indexGithubRepo(project.id,input.githubUrl, input.githubToken)
+            await pollCommits(project.id, false) // skip linking: a brand-new project has no meetings yet
+        } catch (error) {
+            // don't leave an empty, broken project sitting in the sidebar if indexing failed
+            await deleteProjectCascade(project.id).catch(cleanupError => {
+                console.error(`Failed to clean up project ${project.id} after failed indexing:`, cleanupError)
+            })
+            throw error
+        }
+
         return project
 
     }),
@@ -143,6 +154,10 @@ export const projectRouter = createTRPCRouter({
 
    archiveProject: protectedProcedure.input(z.object({projectId: z.string()})).mutation(async ({ctx,input}) => {
     return await ctx.db.project.update({where: {id: input.projectId}, data: {deletedAt: new Date()}})
+   }),
+
+   deleteProject: protectedProcedure.input(z.object({projectId: z.string()})).mutation(async ({input}) => {
+    return await deleteProjectCascade(input.projectId)
    }),
 
    getTeamMembers:protectedProcedure.input(z.object({projectId: z.string()})).query(async({ctx,input}) => {

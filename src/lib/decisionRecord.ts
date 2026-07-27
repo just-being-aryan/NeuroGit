@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { db } from '@/server/db'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
 
 export async function generateDecisionRecord(commitId: string): Promise<void> {
     const bestLink = await db.commitIssueLink.findFirst({

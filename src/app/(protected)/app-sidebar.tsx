@@ -1,16 +1,15 @@
 'use client'
 
 import { Sidebar, SidebarHeader, SidebarContent, SidebarGroupLabel, SidebarGroup, SidebarGroupContent, SidebarMenuItem, SidebarMenuButton , SidebarMenu} from "@/components/ui/sidebar"
-import { LayoutDashboard, HelpCircle, FileStack, History, GitCommitHorizontal, Presentation, Plus, Users, CreditCard } from "lucide-react"
+import { LayoutDashboard, HelpCircle, FileStack, History, GitCommitHorizontal, Presentation, Users, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { NeuroGitIcon } from "@/components/neurogit-icon"
 import { useSidebar } from "@/components/ui/sidebar"
-import useProject from "@/hooks/use-project"
 import { UserButton } from "@clerk/nextjs"
 import { api } from "@/trpc/react"
+import { ProjectSelector } from "./project-selector"
 
 const navGroups = [
     {
@@ -42,7 +41,6 @@ export function AppSidebar()
 {
     const pathname = usePathname()
     const {open} = useSidebar()
-    const {projects, projectId, setProjectId} = useProject()
     const {data: creditsData} = api.project.getMyCredits.useQuery()
 
     return(
@@ -59,6 +57,11 @@ export function AppSidebar()
                         )}
                 </div>
             <SidebarContent className="sidebar-scroll">
+                {open && (
+                    <div className="px-2 pt-3 pb-1">
+                        <ProjectSelector />
+                    </div>
+                )}
                 {navGroups.map((group) => (
                     <SidebarGroup key={group.label}>
                         <SidebarGroupLabel className="font-mono text-[9px] tracking-widest text-archaeology-textDim">
@@ -88,52 +91,6 @@ export function AppSidebar()
                         </SidebarGroupContent>
                     </SidebarGroup>
                 ))}
-                <SidebarGroup>
-                    <SidebarGroupLabel className="font-mono text-[9px] tracking-widest text-archaeology-textDim">
-                        YOUR PROJECTS
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                       <SidebarMenu>
-                        {projects?.map(project => {
-                            return (
-                                <SidebarMenuItem key = {project.id}>
-                                    <SidebarMenuButton asChild>
-                                            <div onClick = {()=>{
-                                                setProjectId(project.id)
-                                            }} className="text-archaeology-textSecondary">
-                                                <div className = {cn(
-                                                    'rounded-sm border border-archaeology-border size-6 flex items-center justify-center text-sm bg-archaeology-card text-archaeology-text',
-                                                    {
-                                                        'bg-archaeology-orange text-white border-archaeology-orange' : project.id === projectId
-                                                    }
-                                                )}>
-                                                    {project.name[0]}
-
-                                                </div>
-                                                <span>{project.name}</span>
-                                            </div>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )
-                        })}
-                        <div className = "h-2"></div>
-                        {open &&(
-                            <SidebarMenuItem>
-                            <Link href = '/create'>
-                                     <Button size = 'sm' variant = {'outline'} className = "w-fit border-archaeology-border text-archaeology-text hover:bg-archaeology-cardHover">
-
-                                     <Plus/>
-                                     New Project
-                                     </Button>
-                            </Link>
-
-                         </SidebarMenuItem>
-                        )}
-
-
-                       </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
             </SidebarContent>
             {open && (
                 <div className="border-t border-archaeology-borderSubtle p-3 flex items-center gap-2">

@@ -9,6 +9,7 @@ import { confidenceColor, confidencePercent } from '@/lib/utils'
 import AskQuestionCard from './ask-question-card'
 import MeetingCard from './meeting-card'
 import ArchiveButton from './archive-button'
+import DeleteProjectButton from './delete-project-button'
 import TeamMembers from './team-members'
 import dynamic from 'next/dynamic'
 
@@ -57,6 +58,7 @@ const DashboardPage = () => {
           <TeamMembers/>
           <InviteButton/>
           <ArchiveButton/>
+          <DeleteProjectButton/>
         </div>
       </div>
 

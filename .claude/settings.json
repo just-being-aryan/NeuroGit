@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PGPASSWORD=npg_Z3AJjlDm5oPF psql \"postgresql://neurogit_owner:npg_Z3AJjlDm5oPF@ep-rapid-union-a1qlpzhy-pooler.ap-southeast-1.aws.neon.tech/neurogit?sslmode=require\" -c \"SELECT p.id, p.name, p.\\\\\"githubUrl\\\\\", COUNT\\(sce.id\\) as total_files, COUNT\\(sce.\\\\\"summaryEmbedding\\\\\"\\) as embedded_files FROM \\\\\"Project\\\\\" p LEFT JOIN \\\\\"SourceCodeEmbedding\\\\\" sce ON sce.\\\\\"projectId\\\\\" = p.id WHERE p.name ILIKE '%epaas%' GROUP BY p.id, p.name, p.\\\\\"githubUrl\\\\\" ORDER BY p.\\\\\"createdAt\\\\\" DESC;\")",
+      "Bash(curl -s \"https://api.github.com/repos/just-being-aryan/EPAAS\")",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0,'utf8'\\)\\); console.log\\('default_branch:', d.default_branch\\)\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

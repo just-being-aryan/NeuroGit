@@ -48,7 +48,7 @@ export async function askQuestion(question : string, projectId:string)
 
     (async() => {
         const {textStream} = await streamText({
-            model: google('gemini-1.5-flash'),
+            model: google('gemini-flash-latest'),
             prompt: `
             You are a ai code assistant who answers questions about the coebase. Your target audience is a technical intern who is looking to understand something
             AI assistant is a brand new, powerful, human-like artificial intelligence.

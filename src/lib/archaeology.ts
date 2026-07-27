@@ -95,7 +95,7 @@ export async function askWhy(
 
     ;(async () => {
         const { textStream } = await streamText({
-            model: google('gemini-1.5-flash'),
+            model: google('gemini-flash-latest'),
             prompt: `
             You are an AI assistant reconstructing the reasoning trail behind a piece of code - not just what it does, but WHY it was built this way.
             Your target audience is a developer trying to understand the history and rationale behind a decision in the codebase.
