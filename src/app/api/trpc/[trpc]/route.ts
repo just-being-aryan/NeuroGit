@@ -5,6 +5,10 @@ import { env } from "@/env";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 
+// createProject can take a while for larger repos (loading + summarising + embedding
+// every file) - extend past Vercel's default ~10s function timeout.
+export const maxDuration = 60;
+
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a HTTP request (e.g. when you make requests from Client Components).
